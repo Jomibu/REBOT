@@ -1,27 +1,23 @@
 import pdfplumber
-import csv
 
-# Define bounding boxes
-bounding_boxes = [
-    (150.00, 427.68, 235.00, 577.94),
-    (260.00, 427.68, 335.00, 577.94),
-    (365.00, 427.68, 440.00, 577.94)
-]
+pdf_path = "Quicken Loans_General_0pt.pdf"
+output_path = "results.txt"
 
-# Open the PDF
-with pdfplumber.open("Truist_Purchase_1pt.pdf") as pdf:
-    page = pdf.pages[0]  # Adjust if needed
+with pdfplumber.open(pdf_path) as pdf:
+    page = pdf.pages[0]
 
-    extracted_data = []
-    for box in bounding_boxes:
-        cropped = page.crop(bbox=box)
-        text = cropped.extract_text() or ""
-        extracted_data.append(text.strip())
+    words = page.extract_words()
 
-# Write to CSV
-with open("output.csv", mode="w", newline="") as file:
-    writer = csv.writer(file)
-    writer.writerow(["Box1", "Box2", "Box3"])
-    writer.writerow(extracted_data)
+    with open(output_path, "w", encoding="utf-8") as f:
+        for word in words:
+            line = (f"{word['text']:>20}  -->  "
+                    f"x0: {word['x0']:.2f}, top: {word['top']:.2f}, "
+                    f"x1: {word['x1']:.2f}, bottom: {word['bottom']:.2f}\n")
+            f.write(line)
 
-print("Data saved to output.csv")
+    print(f"✅ Coordinates saved to: {output_path}")
+
+    # Visual aid (optional)
+    page.to_image(resolution=150).draw_rects(words).show()
+
+input("Press Enter to exit...")

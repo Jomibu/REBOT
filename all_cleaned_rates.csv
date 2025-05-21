@@ -1,0 +1,13 @@
+Bank,Purpose,Points,Loan Type,Rate
+Truist,Purchase,1pt,30-Year Fixed,6.8%
+Truist,Purchase,1pt,15-Year Fixed,5.75%
+Truist,Purchase,1pt,30-Year Jumbo,7.365%
+Truist,Purchase,0pt,30-Year Fixed,7.1%
+Truist,Purchase,0pt,15-Year Fixed,6.2%
+Truist,Purchase,0pt,30-Year Jumbo,7.75%
+Truist,Refinance,1pt,30-Year Fixed,6.9%
+Truist,Refinance,1pt,15-Year Fixed,5.875%
+Truist,Refinance,0pt,30-Year Fixed,7.25%
+Truist,Refinance,0pt,15-Year Fixed,6.375%
+Quicken Loans,General,0pt,30-Year Fixed,7.125%
+Quicken Loans,General,0pt,15-Year Fixed,6.25%
