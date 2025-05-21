@@ -1,0 +1,11 @@
+Purpose,Points,Loan Type,Rate
+Purchase,1pt,30-Year Fixed,6.8%
+Purchase,1pt,15-Year Fixed,5.75%
+Purchase,1pt,30-Year Jumbo,7.365%
+Purchase,0pt,30-Year Fixed,7.1%
+Purchase,0pt,15-Year Fixed,6.2%
+Purchase,0pt,30-Year Jumbo,7.75%
+Refinance,1pt,30-Year Fixed,6.9%
+Refinance,1pt,15-Year Fixed,5.875%
+Refinance,0pt,30-Year Fixed,7.25%
+Refinance,0pt,15-Year Fixed,6.375%
