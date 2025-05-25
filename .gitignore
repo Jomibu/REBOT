@@ -161,3 +161,4 @@ cython_debug/
 
 # Any file or folder with secrets
 secrets.*
+*.pdf
