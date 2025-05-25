@@ -11,6 +11,7 @@ BANKS = [
     {
         "name": "Truist",
         "url": "https://www.truist.com/mortgage/current-mortgage-rates",
+        "page": 0,
         "combinations": [
             ("Purchase", "dynamic-rates-input-1__mortgage-rates-354528076", "1pt"),
             ("Purchase", "dynamic-rates-input-2__mortgage-rates-354528076", "0pt"),
@@ -33,6 +34,7 @@ BANKS = [
     {
         "name": "Quicken Loans",
         "url": "https://www.quickenloans.com/mortgage-rates",
+        "page": 0,
         "combinations": [
             ("General", "", "0pt"),
         ],
@@ -44,6 +46,41 @@ BANKS = [
         },
         "regex": r"(?P<rate>[\d]+(?:\.\d+)?%)",
     },
+    {
+        "name": "Vystar",
+        "url": "https://consumer.optimalblue.com/FeaturedRates?GUID=248df9c1-923d-4153-ab2d-050ba1bd6acf",
+        "page": 0,
+        "combinations": [
+            ("General", "", "0pt"),
+        ],
+        "coordinates": {
+            "General": {
+                "30-Year Fixed": (19.0, 87.0, 55.0, 98.0),
+                "15-Year Fixed": (19.0, 254.0, 55.0, 265.0),
+            }
+        },
+        "regex": r"(?P<rate>[\d]+(?:\.\d+)?%)",
+    },
+    {
+        "name": "Bankrate",
+        "url": "https://www.bankrate.com/mortgages/arm-loan-rates/?mortgageType=Purchase&partnerId=br3&pid=br3&pointsChanged=false&purchaseDownPayment=55680&purchaseLoanTerms=3-1arm%2C5-1arm%2C7-1arm%2C10-1arm&purchasePoints=All&purchasePrice=278400&purchasePropertyType=SingleFamily&purchasePropertyUse=PrimaryResidence&searchChanged=false&ttcid&userCreditScore=740&userDebtToIncomeRatio=0&userFha=false&userVeteranStatus=NoMilitaryService&zipCode=32669#todays-arm-rates",
+        "page": 3,
+        "combinations": [
+            ("Refinance", "refinance-1", "0pt"),
+            ("Purchase", "purchase-0", "0pt"),
+        ],
+        "coordinates": {
+            "Purchase": {
+                "30-Year Fixed": (350.0, 33.0, 390.0, 48.0),
+                "15-Year Fixed": (350.0, 70.0, 390.0, 85.0),
+            },
+            "Refinance": {
+                "30-Year Fixed": (350.0, 330.0, 387.0, 350.0),
+                "15-Year Fixed": (350.0, 365.0, 387.0, 385.0),
+            }
+        },
+        "regex": r"(?P<rate>[\d]+(?:\.\d+)?%)",
+    },    
 ]
 
 async def capture_pdfs(bank):
@@ -92,6 +129,7 @@ def extract_rates(all_results):
     """
     for bank in BANKS:
         pattern = re.compile(bank['regex'], re.IGNORECASE)
+        pagenumber = bank['page']
 
         for mode, _, point_label in bank['combinations']:
             pdf_path = f"{bank['name']}_{mode}_{point_label}.pdf"
@@ -100,7 +138,7 @@ def extract_rates(all_results):
                 continue
 
             with pdfplumber.open(pdf_path) as pdf:
-                page = pdf.pages[0]
+                page = pdf.pages[pagenumber]
                 boxes = bank['coordinates'].get(mode)
 
                 if boxes:
