@@ -4,6 +4,11 @@ import csv
 import pdfplumber
 from playwright.async_api import async_playwright
 import os
+import smtplib
+import ssl
+from email.message import EmailMessage
+from datetime import datetime
+from collections import defaultdict
 
 # === CONFIGURATION ===
 # Unified regex with named group 'rate' for consistent extraction
@@ -166,6 +171,97 @@ def extract_rates(all_results):
                             'Loan Type': 'N/A',
                             'Rate': rate
                         })
+
+# --- Import your secrets ---
+from secrets import sender_email, app_password
+# Support either a list of recipients or a single address
+try:
+    from secrets import recipient_emails
+except ImportError:
+    from secrets import recipient_email
+    recipient_emails = [recipient_email]
+
+# --- Define styling colors ---
+company_colors = {
+    "blue": "#175892",
+    "red": "#ce2d47",
+    "light": "#f6f9f9",
+    "gray": "#555"
+}
+
+# --- Read and group rates from CSV ---
+def load_rates(csv_path):
+    rates_by_bank = defaultdict(list)
+    with open(csv_path, newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            bank = row.get('Bank') or row.get('bank') or 'Unknown'
+            rates_by_bank[bank].append(row)
+    return rates_by_bank
+
+# --- Build HTML table for one bank ---
+def build_bank_table(bank, entries):
+    cols = list(entries[0].keys())
+    header = ''.join(
+        f'<th style="border:1px solid #ccc; padding:6px; background:{company_colors["blue"]}; color:#fff;">{col}</th>'
+        for col in cols
+    )
+    rows = ''
+    for entry in entries:
+        cells = ''.join(
+            f'<td style="border:1px solid #ccc; padding:6px;">{entry[col]}</td>'
+            for col in cols
+        )
+        rows += f'<tr>{cells}</tr>'
+    return f"""
+    <h3 style="color:{company_colors['blue']};">{bank}</h3>
+    <table style="border-collapse:collapse; width:100%; max-width:600px; margin-bottom:20px;">
+      <thead><tr>{header}</tr></thead>
+      <tbody>
+        {rows}
+      </tbody>
+    </table>
+    """
+
+# --- Build full HTML message ---
+def build_html(rates_by_bank):
+    date_str = datetime.now().strftime('%Y-%m-%d')
+    parts = [
+        '<html>',
+        f'<body style="font-family:Arial,sans-serif; background:{company_colors['light']}; color:#333; padding:20px;">',
+        f'<h2 style="color:{company_colors['blue']};">Mortgage Rates Report – {date_str}</h2>'
+    ]
+    for bank, entries in rates_by_bank.items():
+        parts.append(build_bank_table(bank, entries))
+    parts.append(f'<p style="font-size:small; color:{company_colors['gray']};">Generated on {date_str}</p>')
+    parts.append('</body></html>')
+    return ''.join(parts)
+
+# --- Send email via Gmail ---
+def send_email(html_content):
+    sent_date = datetime.now().strftime('%Y-%m-%d')
+    subject = f"Mortgage Rates – {sent_date}"
+    recipients = recipient_emails if isinstance(recipient_emails, list) else [recipient_emails]
+
+    msg = EmailMessage()
+    msg['Subject'] = subject
+    msg['From'] = sender_email
+    msg['To'] = ', '.join(recipients)
+    msg.set_content('Please view this email in an HTML-capable client.')
+    msg.add_alternative(html_content, subtype='html')
+
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as server:
+        server.login(sender_email, app_password)
+        server.sendmail(sender_email, recipients, msg.as_string())
+    print(f"📧 Sent: {subject} to {recipients}")
+
+
+    # 2) Once CSV is ready, send the email report:
+    csv_path = 'all_cleaned_rates.csv'  # ensure this matches your existing output filename
+    rates_by_bank = load_rates(csv_path)
+    html = build_html(rates_by_bank)
+    send_email(html)
 
 async def main():
     # 1) Download all PDFs
