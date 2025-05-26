@@ -24,7 +24,7 @@ logging.basicConfig(
 # ------------------------------
 # Each entry is a tuple: (HH:MM, path_to_script)
 JOBS = [
-    ("06:00", "emailscript.py"),
+    ("16:57", "emailscript.py"),
 ]
 
 def run_script(path: str):
