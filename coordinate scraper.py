@@ -1,10 +1,10 @@
 import pdfplumber
 
-pdf_path = "Vystar_General_0pt.pdf"
+pdf_path = "Bankrate.pdf"
 output_path = "results.txt"
 
 with pdfplumber.open(pdf_path) as pdf:
-    page = pdf.pages[0]
+    page = pdf.pages[3]
 
     words = page.extract_words()
 
