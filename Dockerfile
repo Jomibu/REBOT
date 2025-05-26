@@ -6,7 +6,7 @@ RUN apt-get update \
       curl \
  && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /root/REBOT/
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY scheduler.py .
