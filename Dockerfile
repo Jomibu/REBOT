@@ -13,7 +13,7 @@
   && pip install --no-cache-dir -r requirements.txt
 
 +# pull down Playwright’s browser binaries
-+RUN python3 -m playwright install
++RUN python3 -m playwright install chromium
 
  # copy your code
  COPY . .
