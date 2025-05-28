@@ -12,6 +12,8 @@ from email.message import EmailMessage
 from datetime import datetime
 from collections import defaultdict
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 # --- Import your secrets ---
 from secrets import sender_email, app_password
 try:
